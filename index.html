@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>₹100 Unlock</title>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#0f172a,#312e81);color:white;min-height:100vh;display:grid;place-items:center;padding:20px}
+.card{width:min(520px,100%);background:rgba(255,255,255,.1);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.18);border-radius:24px;padding:32px;text-align:center;box-shadow:0 20px 60px #0006}
+h1{margin:0 0 10px;font-size:32px}.price{font-size:42px;font-weight:800;margin:22px 0}.muted{color:#cbd5e1;line-height:1.5}
+button{border:0;border-radius:14px;padding:15px 24px;font-size:17px;font-weight:700;cursor:pointer;background:#fff;color:#312e81}
+.content{display:none;text-align:left;background:#fff;color:#111827;border-radius:18px;padding:20px;margin-top:22px}
+video{width:100%;border-radius:12px;margin-top:12px}.small{font-size:13px;color:#cbd5e1;margin-top:18px}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>🔐 Premium Access</h1>
+<p class="muted">Pay ₹100 to unlock the premium video.</p>
+<div class="price">₹100</div>
+<div id="locked">
+<button id="payBtn">Pay ₹100 & Unlock</button>
+<p class="small">Secure payment is handled by Razorpay.</p>
+</div>
+<div id="content" class="content">
+<h2>🎉 Access Unlocked</h2>
+<video controls playsinline>
+<source src="/premium-video.mp4" type="video/mp4">
+Your browser does not support video playback.
+</video>
+</div>
+</div>
+<script>
+const BACKEND = ""; // Same-origin: the Node backend serves this page
+document.getElementById("payBtn").onclick = async () => {
+  try {
+    const r = await fetch(BACKEND + "/api/create-order", {method:"POST"});
+    if (!r.ok) throw new Error("Could not create order");
+    const order = await r.json();
+
+    const options = {
+      key: order.key_id,
+      amount: order.amount,
+      currency: order.currency,
+      name: "Premium Access",
+      description: "₹100 Video Access",
+      order_id: order.id,
+      handler: async function (response) {
+        const v = await fetch(BACKEND + "/api/verify-payment", {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify(response)
+        });
+        const result = await v.json();
+        if (result.verified) {
+          document.getElementById("locked").style.display="none";
+          document.getElementById("content").style.display="block";
+        } else {
+          alert("Payment could not be verified.");
+        }
+      },
+      theme: {color:"#312e81"}
+    };
+    new Razorpay(options).open();
+  } catch (e) {
+    alert("Payment setup is not connected yet. Please add your server URL.");
+  }
+};
+</script>
+</body>
+</html>
