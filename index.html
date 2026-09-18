@@ -32,10 +32,14 @@ Your browser does not support video playback.
 </div>
 </div>
 <script>
-const BACKEND = "https://razorpay-backend-1-3412.onrender.com";// Same-origin: the Node backend serves this page
+const BACKEND = "https://razorpay-backend-img6.onrender.com";// Same-origin: the Node backend serves this page
 document.getElementById("payBtn").onclick = async () => {
   try {
-    const r = await fetch(BACKEND+"/create-order", {method:"POST"});
+    const r = await fetch(BACKEND+"/create-order", {
+  method:"POST",
+  headers: {"Content-Type":"application/json"},
+  body: JSON.stringify({amount: 100})
+});
     if (!r.ok) throw new Error("Could not create order");
     const order = await r.json();
 
