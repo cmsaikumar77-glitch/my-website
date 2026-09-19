@@ -40,8 +40,10 @@ document.getElementById("payBtn").onclick = async () => {
   headers: {"Content-Type":"application/json"},
   body: JSON.stringify({amount: 100})
 });
-    if (!r.ok) throw new Error("Could not create order");
-    const order = await r.json();
+    if (!r.ok) {
+  const errText = await r.text();
+  throw new Error("Create order failed: " + errText);
+}
 
     const options = {
       key: order.key_id,
