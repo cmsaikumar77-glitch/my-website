@@ -68,8 +68,9 @@ document.getElementById("payBtn").onclick = async () => {
     };
     new Razorpay(options).open();
   } catch (e) {
-    alert("Payment setup is not connected yet. Please add your server URL.");
-  }
+  alert("ERROR: " + e.message);
+  console.error(e);
+}
 };
 </script>
 </body>
